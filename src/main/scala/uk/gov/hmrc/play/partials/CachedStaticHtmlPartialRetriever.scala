@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,10 @@ import java.util.concurrent.TimeUnit
 
 import com.google.common.base.Ticker
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
-import play.api.mvc.RequestHeader
-import play.twirl.api.Html
-import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent._
 import scala.concurrent.duration._
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 trait CachedStaticHtmlPartialRetriever extends PartialRetriever {
 
@@ -51,7 +48,7 @@ trait CachedStaticHtmlPartialRetriever extends PartialRetriever {
         } //TODO we could also override reload() and refresh the cache asynchronously: https://code.google.com/p/guava-libraries/wiki/CachesExplained#Refresh
       })
 
-  override protected def loadPartial(url: String)(implicit request: RequestHeader) =
+  override protected def loadPartial(url: String) =
     try {
       cache.get(url)
     } catch {
@@ -60,6 +57,6 @@ trait CachedStaticHtmlPartialRetriever extends PartialRetriever {
 
   private def fetchPartial(url: String): HtmlPartial = {
     implicit val hc = HeaderCarrier()
-    Await.result(httpGet.GET[HtmlPartial](url).recover(HtmlPartial.connectionExceptionsAsHtmlPartialFailure), partialRetrievalTimeout)
+    Await.result(httpGet.get[HtmlPartial](url).recover(HtmlPartial.connectionExceptionsAsHtmlPartialFailure), partialRetrievalTimeout)
   }
 }

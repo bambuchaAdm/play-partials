@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,24 @@
 
 package uk.gov.hmrc.play.partials
 
-import play.api.Logger
-import play.api.mvc.RequestHeader
-import play.twirl.api.{Html, HtmlFormat}
-import uk.gov.hmrc.play.http.HttpGet
+import uk.gov.hmrc.http.CoreGet
+
 import scala.concurrent.duration._
 
 trait PartialRetriever extends TemplateProcessor {
 
-  def httpGet: HttpGet
+  def httpGet: CoreGet
 
   def partialRetrievalTimeout: Duration = 20.seconds
 
-  protected def loadPartial(url: String)(implicit request: RequestHeader): HtmlPartial
+  protected def loadPartial(url: String): HtmlPartial
 
-  def getPartial(url: String, templateParameters: Map[String, String] = Map.empty)(implicit request: RequestHeader): HtmlPartial = loadPartial(url)
+  def getPartial(url: String, templateParameters: Map[String, String] = Map.empty): HtmlPartial = loadPartial(url)
 
   @deprecated(message = "Use getPartial or getPartialContent instead", since = "16/10/15")
-  def get(url: String, templateParameters: Map[String, String] = Map.empty, errorMessage: Html = HtmlFormat.empty)(implicit request: RequestHeader): Html =
+  def get(url: String, templateParameters: Map[String, String] = Map.empty, errorMessage: Html = HtmlFormat.empty): Html =
     getPartialContent(url, templateParameters, errorMessage)
 
-  def getPartialContent(url: String, templateParameters: Map[String, String] = Map.empty, errorMessage: Html = HtmlFormat.empty)(implicit request: RequestHeader): Html =
+  def getPartialContent(url: String, templateParameters: Map[String, String] = Map.empty, errorMessage: Html = HtmlFormat.empty): Html =
     getPartial(url, templateParameters).successfulContentOrElse(errorMessage)
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,17 @@
 
 package uk.gov.hmrc.play.partials
 
-import play.api.mvc.RequestHeader
-import play.twirl.api.Html
-
 import scala.concurrent.Await
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 trait FormPartialRetriever extends PartialRetriever with HeaderCarrierForPartialsConverter {
 
-  override def processTemplate(template: Html, parameters: Map[String, String])(implicit request: RequestHeader): Html = {
+  override def processTemplate(template: Html, parameters: Map[String, String]): Html = {
     val formParameters = parameters + ("csrfToken" -> getCsrfToken)
     super.processTemplate(template, formParameters)
   }
 
-  override protected def loadPartial(url: String)(implicit request: RequestHeader): HtmlPartial = {
-    Await.result(httpGet.GET[HtmlPartial](urlWithCsrfToken(url)).recover(HtmlPartial.connectionExceptionsAsHtmlPartialFailure), partialRetrievalTimeout)
+  override protected def loadPartial(url: String): HtmlPartial = {
+    Await.result(httpGet.get[HtmlPartial](urlWithCsrfToken(url)).recover(HtmlPartial.connectionExceptionsAsHtmlPartialFailure), partialRetrievalTimeout)
   }
 
   protected def getCsrfToken(implicit request: RequestHeader): String = {
