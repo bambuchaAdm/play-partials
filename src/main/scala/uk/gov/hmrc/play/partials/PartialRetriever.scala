@@ -22,6 +22,7 @@ import uk.gov.hmrc.http.CoreGet
 
 import scala.concurrent.duration._
 
+@deprecated("Please use AsyncPartialRetriever", since="7.0.0")
 trait PartialRetriever extends TemplateProcessor {
 
   def httpGet: CoreGet
@@ -40,4 +41,8 @@ trait PartialRetriever extends TemplateProcessor {
   def getPartialContent(url: String, templateParameters: Map[String, String] = Map.empty, errorMessage: Html = HtmlFormat.empty)(implicit request: RequestHeader): Html = {
     getPartial(url, templateParameters).successfulContentOrElse(errorMessage)
   }
+}
+
+trait AsyncPartialRetriever {
+
 }
